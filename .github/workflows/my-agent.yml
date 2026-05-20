@@ -30,6 +30,11 @@ jobs:
       - name: Checkout features repo
         uses: actions/checkout@v6
 
+      - name: Checkout target repo
+        uses: actions/checkout@v6
+        with:
+          path: target-repo
+
       - name: Checkout upstream defaults
         uses: actions/checkout@v6
         with:
@@ -93,7 +98,7 @@ jobs:
           fullsend run my-agent \
             --fullsend-dir "$GITHUB_WORKSPACE/.fullsend" \
             --output-dir "$GITHUB_WORKSPACE/output" \
-            --target-repo "$GITHUB_WORKSPACE"
+            --target-repo "$GITHUB_WORKSPACE/target-repo"
 
       - name: Upload artifacts
         if: always()
