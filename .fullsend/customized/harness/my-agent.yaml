@@ -33,6 +33,6 @@ runner_env:
   MY_VAR: "${MY_VAR}"
   ISSUE_KEY: "${ISSUE_KEY}"
   GH_TOKEN: "${GH_TOKEN}"
-  FULLSEND_OUTPUT_SCHEMA: ${FULLSEND_DIR}/customized/schemas/my-agent-result.schema.json
+  FULLSEND_OUTPUT_SCHEMA: ${FULLSEND_DIR}/schemas/my-agent-result.schema.json
 
 timeout_minutes: 20
