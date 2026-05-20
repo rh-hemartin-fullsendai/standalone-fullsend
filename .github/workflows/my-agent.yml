@@ -27,9 +27,6 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout features repo
-        uses: actions/checkout@v6
-
       - name: Checkout target repo
         uses: actions/checkout@v6
         with:
