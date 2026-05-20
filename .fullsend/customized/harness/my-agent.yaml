@@ -24,7 +24,7 @@ skills:
 pre_script: customized/scripts/pre-my-agent.sh
 
 validation_loop:
-  script: customized/scripts/validate-output-schema.sh
+  script: scripts/validate-output-schema.sh
   max_iterations: 2
 
 post_script: customized/scripts/post-my-agent.sh
