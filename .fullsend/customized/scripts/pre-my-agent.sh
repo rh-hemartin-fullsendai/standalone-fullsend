@@ -11,7 +11,7 @@ if [[ "${ISSUE_SOURCE}" == "jira" ]]; then
     > "$WORKSPACE/my-input.json"
 
 elif [[ "${ISSUE_SOURCE}" == "github" ]]; then
-  gh issue view "$ISSUE_KEY" --repo "$REPO_FULL_NAME" \
+  gh issue view "$ISSUE_KEY" --repo "$GITHUB_REPOSITORY" \
     --json number,title,body,labels,comments \
     > "$WORKSPACE/my-input.json"
 fi
