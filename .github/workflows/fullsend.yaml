@@ -46,7 +46,9 @@ jobs:
       install_mode: per-repo
       mint_url: ${{ vars.FULLSEND_MINT_URL }}
       gcp_region: ${{ vars.FULLSEND_GCP_REGION }}
-      fullsend_ai_ref: ${{ github.github_ref }}
+      fullsend_ai_ref: ${{ env.ACTION_REF }}
+    env:
+      ACTION_REF: ${{ github.action_ref }}
     secrets:
       FULLSEND_GCP_WIF_PROVIDER: ${{ secrets.FULLSEND_GCP_WIF_PROVIDER }}
       FULLSEND_GCP_PROJECT_ID: ${{ secrets.FULLSEND_GCP_PROJECT_ID }}
