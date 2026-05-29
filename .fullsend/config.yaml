@@ -8,5 +8,6 @@ roles:
     - triage
     - coder
     - review
+    - fix
     - retro
     - prioritize
