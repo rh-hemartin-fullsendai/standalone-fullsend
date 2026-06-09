@@ -40,12 +40,14 @@ jobs:
     if: >-
       github.event_name != 'issue_comment'
       || github.event.comment.user.type != 'Bot'
-    uses: fullsend-ai/fullsend/.github/workflows/reusable-dispatch.yml@feat/openshell-upgrade
+    uses: fullsend-ai/fullsend/.github/workflows/reusable-dispatch.yml@feat/compile-binary
     with:
       event_action: ${{ github.event.action }}
       install_mode: per-repo
       mint_url: ${{ vars.FULLSEND_MINT_URL }}
       gcp_region: ${{ vars.FULLSEND_GCP_REGION }}
+      fullsend_ai_ref: feat/compile-binary
+      fullsend_version: feat/compile-binary
     secrets:
       FULLSEND_GCP_WIF_PROVIDER: ${{ secrets.FULLSEND_GCP_WIF_PROVIDER }}
       FULLSEND_GCP_PROJECT_ID: ${{ secrets.FULLSEND_GCP_PROJECT_ID }}
