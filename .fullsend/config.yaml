@@ -11,3 +11,8 @@ roles:
     - fix
     - retro
     - prioritize
+create_issues:
+    allow_targets:
+        repos:
+            - rh-hemartin-fullsendai/standalone-fullsend
+            - fullsend-ai/fullsend
