@@ -49,8 +49,7 @@ jobs:
       install_mode: per-repo
       mint_url: ${{ vars.FULLSEND_MINT_URL }}
       gcp_region: ${{ vars.FULLSEND_GCP_REGION }}
-      fullsend_actions_ref: feat/upstream-ref-flag
-      fullsend_cli_ref: feat/upstream-ref-flag
+      fullsend_ai_ref: feat/upstream-ref-flag
     secrets:
       FULLSEND_GCP_WIF_PROVIDER: ${{ secrets.FULLSEND_GCP_WIF_PROVIDER }}
       FULLSEND_GCP_PROJECT_ID: ${{ secrets.FULLSEND_GCP_PROJECT_ID }}
