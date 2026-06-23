@@ -7,16 +7,16 @@ policy: customized/policies/my-agent.yaml
 host_files:
   # GCP credentials for Vertex AI (required for model access)
   - src: env/gcp-vertex.env
-    dest: /tmp/workspace/.env.d/gcp-vertex.env
+    dest: /sandbox/workspace/.env.d/gcp-vertex.env
     expand: true
   - src: ${GOOGLE_APPLICATION_CREDENTIALS}
-    dest: /tmp/workspace/.gcp-credentials.json
+    dest: /tmp/.gcp-credentials.json
   - src: ${GCP_OIDC_TOKEN_FILE}
-    dest: /tmp/workspace/.gcp-oidc-token
+    dest: /sandbox/workspace/.gcp-oidc-token
     optional: true
   # Your custom input files (written by pre-script)
   - src: /tmp/workspace/my-input.json
-    dest: /tmp/workspace/my-input.json
+    dest: /sandbox/workspace/my-input.json
     optional: true
 
 skills:
