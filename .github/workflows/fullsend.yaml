@@ -43,7 +43,7 @@ jobs:
     if: >-
       github.event_name != 'issue_comment'
       || github.event.comment.user.type != 'Bot'
-    uses: rh-hemartin-fullsendai/standalone-fullsend/.fullsend/.github/workflows/reusable-dispatch.yml@main
+    uses: ./.fullsend/.github/workflows/reusable-dispatch.yml
     with:
       event_action: ${{ github.event.action }}
       install_mode: per-repo
