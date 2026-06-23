@@ -85,13 +85,13 @@ jobs:
         env:
           ISSUE_KEY: ${{ inputs.issue_key }}
           ISSUE_SOURCE: ${{ inputs.issue_source || 'github' }}
+          REPO_FULL_NAME: ${{ github.repository }}
           JIRA_HOST: ${{ secrets.JIRA_HOST }}
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_VERTEX_PROJECT_ID: ${{ secrets.FULLSEND_GCP_PROJECT_ID }}
           CLOUD_ML_REGION: ${{ vars.FULLSEND_GCP_REGION }}
-          MY_VAR: ABC
         run: |
           set -euo pipefail
           mkdir -p "$GITHUB_WORKSPACE/output"

@@ -34,9 +34,13 @@ cat "$MY_INPUT_FILE" | jq .
 
 [Describe what the agent should extract and how to reason about it]
 
-### Phase 2: Do work
+### Phase 2: Compose a greeting
 
-[Describe the agent's main work — analysis, research, generation, etc.]
+Based on the issue content, compose a friendly greeting that:
+
+- Acknowledges the issue author by mentioning what they reported
+- Confirms the agent has read the issue
+- Is concise (1-2 sentences)
 
 ### Phase 3: Write result
 
@@ -45,7 +49,7 @@ Write to `$FULLSEND_OUTPUT_DIR/agent-result.json`:
 ```json
 {
   "status": "complete",
-  "result": { }
+  "greeting": "Hello! I've reviewed your issue about [topic]. Thanks for the detailed report!"
 }
 ```
 
@@ -54,3 +58,4 @@ Write to `$FULLSEND_OUTPUT_DIR/agent-result.json`:
 - You do NOT write code, create issues, or modify anything.
   Your only output is the JSON result file.
 - The JSON must be valid and parseable. No markdown fences.
+- Keep the greeting under 280 characters.
