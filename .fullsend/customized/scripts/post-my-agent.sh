@@ -21,7 +21,7 @@ if ! jq empty "${RESULT_FILE}" 2>/dev/null; then
 fi
 
 STATUS=$(jq -r '.status // ""' "${RESULT_FILE}")
-COMMENT=$(jq -r '.comment // ""' "${RESULT_FILE}")
+GREETING=$(jq -r '.greeting // ""' "${RESULT_FILE}")
 
 # Validate status against known values before acting on it.
 case "${STATUS}" in
@@ -36,3 +36,9 @@ case "${STATUS}" in
     exit 1
     ;;
 esac
+
+# Post the greeting as a comment on the issue.
+if [[ -n "${GREETING}" && "${STATUS}" == "complete" ]]; then
+  gh issue comment "${ISSUE_KEY}" --repo "${REPO_FULL_NAME}" --body "${GREETING}"
+  echo "Posted greeting to issue #${ISSUE_KEY}"
+fi

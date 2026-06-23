@@ -30,8 +30,8 @@ validation_loop:
 post_script: customized/scripts/post-my-agent.sh
 
 runner_env:
-  MY_VAR: "${MY_VAR}"
   ISSUE_KEY: "${ISSUE_KEY}"
+  REPO_FULL_NAME: "${REPO_FULL_NAME}"
   GH_TOKEN: "${GH_TOKEN}"
   FULLSEND_OUTPUT_SCHEMA: ${FULLSEND_DIR}/schemas/my-agent-result.schema.json
 
