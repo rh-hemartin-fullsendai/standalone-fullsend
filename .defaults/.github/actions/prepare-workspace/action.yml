@@ -1,13 +1,11 @@
 name: Prepare Workspace
 description: >-
-  Checkout config repo, fetch upstream defaults, layer org/repo overrides,
-  and validate enrollment. Replaces the 4 repeated setup steps in each
-  stage job of reusable-dispatch.yml.
+  Layer upstream defaults with org/repo overrides and validate enrollment.
+  Must be called AFTER the config repo and upstream defaults have been
+  checked out (the checkout steps must be inline in the job because this
+  action is only available once .defaults/ exists on disk).
 
 inputs:
-  fullsend_ai_ref:
-    description: Ref of fullsend-ai/fullsend to load actions and defaults from
-    required: true
   install_mode:
     description: "per-repo or per-org"
     required: true
@@ -23,23 +21,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Checkout config repository
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-    - name: Checkout upstream defaults
-      if: hashFiles('.defaults/action.yml', '.fullsend/.defaults/action.yml') == ''
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      with:
-        repository: fullsend-ai/fullsend
-        ref: ${{ inputs.fullsend_ai_ref }}
-        path: .defaults
-        fetch-depth: 1
-        sparse-checkout: |
-          .github/actions/
-          .github/scripts/
-          internal/scaffold/fullsend-repo/
-          action.yml
-
     - name: Prepare workspace (upstream defaults + org/repo overrides)
       shell: bash
       env:
