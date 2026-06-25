@@ -4,6 +4,7 @@ binary_path: .fullsend/bin/fullsend
 paths:
     - .defaults/.github/actions/check-e2e-authorization/action.yml
     - .defaults/.github/actions/mint-token/action.yml
+    - .defaults/.github/actions/prepare-workspace/action.yml
     - .defaults/.github/actions/setup-gcp/action.yml
     - .defaults/.github/actions/validate-enrollment/action.yml
     - .defaults/.github/scripts/install-openshell.sh
@@ -81,6 +82,7 @@ paths:
     - .defaults/internal/scaffold/fullsend-repo/scripts/validate-output-schema.sh
     - .defaults/internal/scaffold/fullsend-repo/scripts/validate-source-repo.sh
     - .defaults/internal/scaffold/fullsend-repo/skills/agent-scaffolding/SKILL.md
+    - .defaults/internal/scaffold/fullsend-repo/skills/autonomy-readiness/SKILL.md
     - .defaults/internal/scaffold/fullsend-repo/skills/code-implementation/SKILL.md
     - .defaults/internal/scaffold/fullsend-repo/skills/code-review/SKILL.md
     - .defaults/internal/scaffold/fullsend-repo/skills/docs-review/SKILL.md
@@ -97,10 +99,4 @@ paths:
     - .defaults/internal/scaffold/fullsend-repo/skills/pr-review/sub-agents/security.md
     - .defaults/internal/scaffold/fullsend-repo/skills/pr-review/sub-agents/style-conventions.md
     - .defaults/internal/scaffold/fullsend-repo/skills/retro-analysis/SKILL.md
-    - .fullsend/.github/workflows/reusable-code.yml
     - .fullsend/.github/workflows/reusable-dispatch.yml
-    - .fullsend/.github/workflows/reusable-fix.yml
-    - .fullsend/.github/workflows/reusable-prioritize.yml
-    - .fullsend/.github/workflows/reusable-retro.yml
-    - .fullsend/.github/workflows/reusable-review.yml
-    - .fullsend/.github/workflows/reusable-triage.yml
