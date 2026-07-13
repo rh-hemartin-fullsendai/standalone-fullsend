@@ -1,0 +1,20 @@
+---
+# harness/signing-code.yaml — code agent with commit signing.
+base: https://raw.githubusercontent.com/fullsend-ai/agents/ef7e8c3c64b1a8af87aec2d253d26ea81a6310de/harness/code.yaml#sha256=050382941bb4c4a3dad5f00253de854684c0d22dd8cc1ca0a548079774470aad
+image: ghcr.io/lahavyuv86/fullsend-code:540b27f
+
+role: coder
+slug: fullsend-ai-coder
+
+env:
+  sandbox:
+    # Gitsign OIDC configuration
+    GITSIGN_CONNECTOR_ID: "https://github.com/login/oauth"
+    GITSIGN_TOKEN_PROVIDER: "github-actions"
+    GITSIGN_REKOR_MODE: "offline"
+    # Enable signing via GIT_CONFIG_* variables
+    GIT_CONFIG_COUNT: "2"
+    GIT_CONFIG_KEY_0: "commit.gpgsign"
+    GIT_CONFIG_VALUE_0: "true"
+    GIT_CONFIG_KEY_1: "tag.gpgsign"
+    GIT_CONFIG_VALUE_1: "true"
