@@ -11,11 +11,15 @@ roles:
     - fix
     - retro
     - prioritize
-allowed_remote_resources:
-    - https://raw.githubusercontent.com/fullsend-ai/fullsend/
-    - https://raw.githubusercontent.com/fullsend-ai/agents/
+
+agents:
+  - source: signing-code.yaml
 create_issues:
     allow_targets:
         repos:
             - rh-hemartin-fullsendai/standalone-fullsend
             - fullsend-ai/fullsend
+
+allowed_remote_resources:
+  - https://raw.githubusercontent.com/rh-hemartin-fullsendai/standalone-fullsend/
+  - https://raw.githubusercontent.com/fullsend-ai/agents/
