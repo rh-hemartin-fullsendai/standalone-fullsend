@@ -14,7 +14,8 @@ roles:
 
 agents:
   - source: code.yaml
-  - source: retro.yaml
+  - name: retro
+    source: https://raw.githubusercontent.com/fullsend-ai/agents/bf4dfb12b05342b43fa77d84943c6434efb1eaca/harness/retro.yaml#sha256=8be74d42aa94ed0083fd1a915f9903435d797b801b3866acd7e8249830388835
 create_issues:
     allow_targets:
         repos:
