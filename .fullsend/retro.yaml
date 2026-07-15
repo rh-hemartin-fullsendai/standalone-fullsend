@@ -1,3 +1,0 @@
----
-base: https://raw.githubusercontent.com/fullsend-ai/agents/bf4dfb12b05342b43fa77d84943c6434efb1eaca/harness/retro.yaml#sha256=8be74d42aa94ed0083fd1a915f9903435d797b801b3866acd7e8249830388835
-policy: https://raw.githubusercontent.com/fullsend-ai/agents/bf4dfb12b05342b43fa77d84943c6434efb1eaca/policies/retro.yaml#sha256=a4373c4550900312ecbf0e8e09c0daa343fccb82f4c14219c6b528e9955819da
