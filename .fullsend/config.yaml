@@ -14,7 +14,7 @@ roles:
 
 agents:
   - name: code
-    source: https://raw.githubusercontent.com/fullsend-ai/agents/c71b59dbeda81c9000693ac23a0c01f29108c723/harness/code.yaml#sha256=050382941bb4c4a3dad5f00253de854684c0d22dd8cc1ca0a548079774470aad
+    source: https://raw.githubusercontent.com/fullsend-ai/agents/e754b0ab4676e8c83451a18991e352b1cebb1e2d/harness/code.yaml#sha256=050382941bb4c4a3dad5f00253de854684c0d22dd8cc1ca0a548079774470aad
   - name: retro
     source: https://raw.githubusercontent.com/fullsend-ai/agents/bf4dfb12b05342b43fa77d84943c6434efb1eaca/harness/retro.yaml#sha256=8be74d42aa94ed0083fd1a915f9903435d797b801b3866acd7e8249830388835
 create_issues:
