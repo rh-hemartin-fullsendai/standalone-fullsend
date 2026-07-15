@@ -13,7 +13,7 @@ roles:
     - prioritize
 
 agents:
-  - source: signing-code.yaml
+  - source: code.yaml
 create_issues:
     allow_targets:
         repos:
