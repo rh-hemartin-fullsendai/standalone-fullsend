@@ -1,0 +1,10 @@
+# QualityFlow — AI-powered QE pipeline for automated test planning and generation.
+#
+# Inherits the full agent definition (including CEL trigger for /fs-plan-tests)
+# from the QualityFlow open-source repo via commit-pinned base inheritance.
+#
+# To update the pin:
+#   1. Get the new commit SHA from the QualityFlow repo
+#   2. Compute: curl -sL "https://raw.githubusercontent.com/redhat-community-ai-tools/qualityflow-fullsend/<sha>/harness/qualityflow.yaml" | shasum -a 256
+#   3. Replace the base: line below
+base: https://raw.githubusercontent.com/redhat-community-ai-tools/qualityflow-fullsend/b26c947e95e6325284c5542d466a2a016f6aa312/harness/qualityflow.yaml#sha256=473d44a73c465b318fa3cd8dfee2c55b4a5dc7439f994607eb774825c43c17c2
