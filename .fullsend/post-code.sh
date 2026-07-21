@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # GENERATED from post-code.src.sh — DO NOT EDIT. Run: make script-build
-# Post-script: push the agent's commit and create a PR.
+# Post-script: create a signed commit from staged files and open a PR.
 #
 # Runs on the GitHub Actions runner AFTER the sandbox is destroyed.
 # This script has write access to the target repo — it is the most
@@ -752,19 +752,12 @@ echo "Branch: ${BRANCH}"
 echo "Token source: ${PUSH_TOKEN_SOURCE:-unknown}"
 
 # ---------------------------------------------------------------------------
-# 2. Compute changed files
+# 2. Compute changed files (from staged index, not commits)
 # ---------------------------------------------------------------------------
-MERGE_BASE="$(git merge-base "origin/${TARGET_BRANCH}" HEAD 2>/dev/null)" || MERGE_BASE=""
-if [ -n "${MERGE_BASE}" ]; then
-  CHANGED_FILES="$(git diff --name-only "${MERGE_BASE}..HEAD")"
-else
-  gha_echo warning "Could not determine merge-base — trying origin/${TARGET_BRANCH}..HEAD"
-  CHANGED_FILES="$(git diff --name-only "origin/${TARGET_BRANCH}..HEAD" 2>/dev/null \
-    || git diff --name-only HEAD~1..HEAD 2>/dev/null || true)"
-fi
+CHANGED_FILES="$(git diff --cached --name-only)"
 
 if [ -z "${CHANGED_FILES}" ]; then
-  gha_echo notice "No changed files in agent's commit(s) — nothing to do"
+  gha_echo notice "No staged files from agent — nothing to do"
   exit 0
 fi
 
@@ -796,10 +789,9 @@ for file in ${CHANGED_FILES}; do
 done
 
 if [ -n "${STRIPPED_FILES}" ]; then
-  gha_echo warning "Agent committed working directory artifacts — stripping before push"
+  gha_echo warning "Agent staged working directory artifacts — unstaging before commit"
   # shellcheck disable=SC2086
-  git rm --cached --quiet ${STRIPPED_FILES}
-  git commit --amend --no-edit
+  git reset HEAD --quiet -- ${STRIPPED_FILES}
 
   # Rebuild CHANGED_FILES without the stripped artifacts.
   CLEAN_FILES=""
@@ -819,46 +811,44 @@ if [ -n "${STRIPPED_FILES}" ]; then
   CHANGED_FILES="${CLEAN_FILES}"
 
   if [ -z "${CHANGED_FILES}" ]; then
-    gha_echo notice "All changed files were agent artifacts — nothing to push"
+    gha_echo notice "All staged files were agent artifacts — nothing to commit"
     exit 0
   fi
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Authoritative secret scan
+# 3. Authoritative secret scan (staged files)
 # ---------------------------------------------------------------------------
-echo "Running authoritative secret scan on agent's commit..."
+echo "Running authoritative secret scan on staged files..."
 
 if ! install_gitleaks; then
   post_fail_to_issue setup-error "Failed to install gitleaks v${GITLEAKS_VERSION}"
 fi
 
-if [ -n "${MERGE_BASE}" ]; then
-  SCAN_RANGE="${MERGE_BASE}..HEAD"
-else
-  SCAN_RANGE="HEAD~1..HEAD"
-fi
+SCAN_RANGE="--staged"
 
-if ! GITLEAKS_OUTPUT="$(gitleaks detect --source . --log-opts="${SCAN_RANGE}" --redact 2>&1)"; then
+if ! GITLEAKS_OUTPUT="$(gitleaks detect --source . ${SCAN_RANGE} --redact 2>&1)"; then
   print_sanitized_gha_log "${GITLEAKS_OUTPUT}" stderr
   post_fail_to_issue secret-scan "${POST_FAILURE_SECRET_SCAN_MESSAGE}"
 fi
-echo "Secret scan passed — no leaks in agent's commit(s)"
+echo "Secret scan passed — no leaks in staged files"
 
 # ---------------------------------------------------------------------------
-# 3b. Reject Signed-off-by trailers
+# 3b. Reject Signed-off-by trailers in commit message
 #
 # Agents must never produce Signed-off-by trailers. DCO is a human
 # attestation — the DCO app already waives the check for bot authors.
-# The bot noreply email makes the trailer ~90 characters, which causes
-# gitlint body-max-line-length failures in repos with a 72-char limit.
 # ---------------------------------------------------------------------------
-echo "Checking for Signed-off-by trailers in agent's commit(s)..."
-if git log --format='%b' "${SCAN_RANGE}" | grep -q '^Signed-off-by:'; then
-  post_fail_to_issue signed-off-by \
-    "Agent commit contains a Signed-off-by trailer. Agents must not use 'git commit -s' or append Signed-off-by trailers."
+echo "Checking for Signed-off-by trailers in commit message..."
+COMMIT_MSG_CHECK=""
+if [ -n "${RESULT_FILE}" ]; then
+  COMMIT_MSG_CHECK="$(jq -r '.commit_message // empty' "${RESULT_FILE}" 2>/dev/null || true)"
 fi
-echo "Signed-off-by scan passed — no trailers in agent's commit(s)"
+if printf '%s\n' "${COMMIT_MSG_CHECK}" | grep -q '^Signed-off-by:'; then
+  post_fail_to_issue signed-off-by \
+    "Agent commit message contains a Signed-off-by trailer. Agents must not append Signed-off-by trailers."
+fi
+echo "Signed-off-by scan passed — no trailers in commit message"
 
 # ---------------------------------------------------------------------------
 # 4. Auto-install pre-commit tool dependencies
@@ -953,28 +943,18 @@ if [ -f .pre-commit-config.yaml ]; then
         echo "Auto-fixed files:"
         git diff --name-only -- "${changed_array[@]}" | sed 's/^/  /'
         git diff --name-only -z -- "${changed_array[@]}" | xargs -0 -r git add --
-        git commit --amend --no-edit
 
-        echo "Re-running secret scan on amended commit..."
+        echo "Re-running secret scan on staged files..."
         GITLEAKS_OUTPUT=""
-        if ! GITLEAKS_OUTPUT="$(gitleaks detect --source . --log-opts="${SCAN_RANGE}" --redact 2>&1)"; then
+        if ! GITLEAKS_OUTPUT="$(gitleaks detect --source . --staged --redact 2>&1)"; then
           print_sanitized_gha_log "${GITLEAKS_OUTPUT}" stderr
           post_fail_to_issue secret-scan "${POST_FAILURE_SECRET_SCAN_MESSAGE}"
         fi
-        if git log --format='%b' "${SCAN_RANGE}" | grep -q '^Signed-off-by:'; then
-          post_fail_to_issue signed-off-by \
-            "Amended commit contains a Signed-off-by trailer after pre-commit auto-fix."
-        fi
 
-        if [ -n "${MERGE_BASE}" ]; then
-          CHANGED_FILES="$(git diff --name-only "${MERGE_BASE}..HEAD")"
-        else
-          CHANGED_FILES="$(git diff --name-only "origin/${TARGET_BRANCH}..HEAD" 2>/dev/null \
-            || git diff --name-only HEAD~1..HEAD 2>/dev/null || true)"
-        fi
+        CHANGED_FILES="$(git diff --cached --name-only)"
         if [ -z "${CHANGED_FILES}" ]; then
           post_fail_to_issue pre-commit-blocked \
-            "Pre-commit hooks removed all changes; commit is now empty."
+            "Pre-commit hooks removed all changes; nothing left to commit."
         fi
         changed_array=()
         while IFS= read -r _changed_line; do
@@ -1005,7 +985,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Push branch
+# 6. Set up remote auth (needed for gh CLI and gh-app-commit.py)
 # ---------------------------------------------------------------------------
 git remote set-url origin \
   "https://x-access-token:${PUSH_TOKEN}@github.com/${REPO_FULL_NAME}.git"
@@ -1035,29 +1015,28 @@ if [ -n "${REMOTE_REF}" ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 7b. Push, with --force-with-lease fallback for non-fast-forward errors.
+# 7b. Create signed commit via GitHub Commits API
 # ---------------------------------------------------------------------------
-echo "Pushing branch ${BRANCH}..."
-PUSH_OUTPUT="$(git push -u origin -- "${BRANCH}" 2>&1)" && PUSH_RC=0 || PUSH_RC=$?
-print_sanitized_gha_log "${PUSH_OUTPUT}"
-
-if [ "${PUSH_RC}" -ne 0 ]; then
-  if echo "${PUSH_OUTPUT}" | grep -qi "non-fast-forward\|rejected\|fetch first"; then
-    gha_echo warning "Plain push failed (non-fast-forward) — retrying with --force-with-lease"
-    FORCE_PUSH_OUTPUT=""
-    if ! FORCE_PUSH_OUTPUT="$(git push --force-with-lease -u origin -- "${BRANCH}" 2>&1)"; then
-      print_sanitized_gha_log "${FORCE_PUSH_OUTPUT}"
-      PUSH_CATEGORY="$(categorize_push_failure "${PUSH_OUTPUT}
-${FORCE_PUSH_OUTPUT}")"
-      post_fail_to_issue "${PUSH_CATEGORY}" "${PUSH_OUTPUT}
-${FORCE_PUSH_OUTPUT}"
-    fi
-    print_sanitized_gha_log "${FORCE_PUSH_OUTPUT}"
-  else
-    PUSH_CATEGORY="$(categorize_push_failure "${PUSH_OUTPUT}")"
-    post_fail_to_issue "${PUSH_CATEGORY}" "${PUSH_OUTPUT}"
-  fi
+COMMIT_MSG=""
+if [ -n "${RESULT_FILE}" ]; then
+  COMMIT_MSG="$(jq -r '.commit_message // empty' "${RESULT_FILE}" 2>/dev/null || true)"
 fi
+if [ -z "${COMMIT_MSG}" ]; then
+  COMMIT_MSG="feat(#${ISSUE_NUMBER}): automated implementation"
+  gha_echo warning "No commit_message in result file — using fallback: ${COMMIT_MSG}"
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "Creating signed commit on branch ${BRANCH} via GitHub API..."
+COMMIT_OUTPUT=""
+if ! COMMIT_OUTPUT="$(python3 "${SCRIPT_DIR}/gh-app-commit.py" \
+    --token "${PUSH_TOKEN}" \
+    -m "${COMMIT_MSG}" \
+    --branch "${BRANCH}" 2>&1)"; then
+  print_sanitized_gha_log "${COMMIT_OUTPUT}" stderr
+  post_fail_to_issue push-failed "${COMMIT_OUTPUT}"
+fi
+print_sanitized_gha_log "${COMMIT_OUTPUT}"
 
 # ---------------------------------------------------------------------------
 # 8. Create PR
@@ -1078,7 +1057,14 @@ fi
 
 echo "Creating PR..."
 
-COMMIT_SUBJECT="$(git log -1 --format='%s' HEAD)"
+COMMIT_SUBJECT=""
+if [ -n "${RESULT_FILE}" ]; then
+  FULL_MSG="$(jq -r '.commit_message // empty' "${RESULT_FILE}" 2>/dev/null || true)"
+  COMMIT_SUBJECT="$(printf '%s\n' "${FULL_MSG}" | head -1)"
+fi
+if [ -z "${COMMIT_SUBJECT}" ]; then
+  COMMIT_SUBJECT="feat(#${ISSUE_NUMBER}): automated implementation"
+fi
 
 # Read pr_body from agent output. Fall back to commit body if absent.
 PR_BODY_FROM_RESULT=""
@@ -1117,8 +1103,14 @@ if [ -n "${PR_BODY_FROM_RESULT}" ]; then
 fi
 
 extract_commit_body() {
-  local raw
-  raw="$(git log -1 --format='%b' HEAD \
+  local full_msg raw
+  full_msg=""
+  if [ -n "${RESULT_FILE}" ]; then
+    full_msg="$(jq -r '.commit_message // empty' "${RESULT_FILE}" 2>/dev/null || true)"
+  fi
+  # Skip the first line (subject) and any blank line after it
+  raw="$(printf '%s\n' "${full_msg}" | tail -n +2 \
+    | sed '1{/^$/d}' \
     | sed '/^Signed-off-by:/d' \
     | sed '/^Closes #/d' \
     | sed -e :a -e '/^\n*$/{ $d; N; ba; }')"
@@ -1203,7 +1195,7 @@ Closes #${ISSUE_NUMBER}
 ### Post-script verification
 
 - [x] Branch is not main/master (\`${BRANCH}\`)
-- [x] Secret scan passed (gitleaks — \`${SCAN_RANGE}\`)
+- [x] Secret scan passed (gitleaks — staged files)
 ${PR_BODY_SCAN_LINE}
 - [x] Pre-commit hooks passed (authoritative run on runner)
 - [x] Tests ran inside sandbox"

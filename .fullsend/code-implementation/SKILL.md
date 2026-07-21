@@ -3,7 +3,7 @@ name: code-implementation
 description: >-
   Step-by-step procedure for implementing a GitHub issue. Gathers context,
   discovers repo conventions, plans the change, implements, verifies with
-  tests and linters, and commits to a feature branch.
+  tests and linters, and stages changes for the post-script to commit.
 ---
 
 # Code Implementation
@@ -17,11 +17,11 @@ introduce regressions.
 ## Tools reminder
 
 You have the `Bash` tool for all CLI operations. **You must use it** for
-verification (step 9) and committing (step 10) — do not skip these steps.
+verification (step 9) and staging (step 10) — do not skip these steps.
 
 Commands you will need during this procedure:
 
-- `git checkout`, `git add <file>`, `git diff`, `git commit` — branching and committing
+- `git checkout`, `git add <file>`, `git diff` — branching and staging
 - `gh issue view` — reading issues (read-only, no edits or comments)
 - `gh pr view`, `gh pr list`, `gh pr diff` — reading PR context
 - `make test`, `go test ./...`, `npm test`, `pytest` — running tests
@@ -72,7 +72,7 @@ AGENT_START=$(date +%s)
 ```
 
 Before starting pre-commit (9b), before each retry iteration (9c), and
-before commit (10), check remaining time **only if `TIMEOUT_SECONDS` is
+before staging (10), check remaining time **only if `TIMEOUT_SECONDS` is
 set**:
 
 ```bash
@@ -89,12 +89,12 @@ fractions of the budget so they scale to any timeout value):
 - **Before 9b (pre-commit):** If less than 40% of the budget remaining,
   skip pre-commit entirely. The post-script runs it authoritatively.
 - **Before a retry in 9c:** If less than 20% of the budget remaining,
-  do NOT retry. Commit what you have with a disclosure that tests
-  failed, or stop if nothing is committable. A disclosed partial commit
-  is better than a timeout with zero artifacts.
-- **Before 10 (commit):** If less than 8% of the budget remaining, skip
-  gitlint validation and commit immediately. A commit that fails gitlint
-  CI is better than no commit at all.
+  do NOT retry. Stage what you have with a disclosure in the commit
+  message that tests failed, or stop if nothing is stageable. A
+  disclosed partial change is better than a timeout with zero artifacts.
+- **Before 10 (stage/output):** If less than 8% of the budget
+  remaining, skip gitlint validation and write the commit message to
+  structured output immediately.
 
 ## Process
 
@@ -619,13 +619,14 @@ Read every line. Check for:
 
 If you added more than necessary, revert the extras before staging.
 
-### 10. Commit
+### 10. Stage and write commit message
 
 ```bash
-echo "::notice::STEP 10: Commit"
+echo "::notice::STEP 10: Stage and write commit message"
 ```
 
-Stage **only the files you modified or created** and commit.
+Stage **only the files you modified or created**. Do not commit; the
+post-script creates the commit via the GitHub API so it is signed.
 
 **10a. Stage files**
 
@@ -663,7 +664,11 @@ the trailer is unnecessary. Including it causes gitlint
 `body-max-line-length` failures because the bot noreply email makes the
 trailer ~90 characters.
 
-**10c. Commit**
+**10c. Write commit message to structured output**
+
+Do **not** run `git commit`. The post-script creates the commit via the
+GitHub Commits API so it is signed and verified. Instead, write the
+commit message to `code-result.json`.
 
 The commit message must:
 
@@ -690,32 +695,7 @@ test -f .gitlint && cat .gitlint
 
 Most repos enforce a title length limit (commonly 72 characters). If
 `.gitlint` has `[title-max-length] line-length=72`, keep the title
-(first line) under that limit. Use a concise `<type>: <description>`
-that fits.
-
-**Body line length — comply with the repo's gitlint config:**
-
-If `.gitlint` has a `[body-max-line-length]` rule (e.g. `line-length=72`),
-you **MUST** hard-wrap commit body text at that limit. This is enforced
-by CI. The post-script will unwrap the commit body when building the PR
-description (legacy path), so your hard-wrapped commit body will still
-render as nice prose on GitHub. When you provide `pr_body` in the result
-file, the post-script uses it verbatim (no unwrapping), so `pr_body` is
-not subject to gitlint line-length constraints.
-
-Hard-wrap guidelines when a limit is configured:
-- Break lines at word boundaries before hitting the limit
-- List items that exceed the limit: start the continuation on the next
-  line, indented by 2 spaces
-- URLs that exceed the limit may remain on one line (gitlint usually
-  allows this via `ignore-body-lines`)
-- `Closes #N` and similar trailers: keep on one line
-- **`Signed-off-by:`** — do NOT use `git commit -s`. The DCO is a
-  human attestation of personhood and legal authority to contribute.
-  No human is present to make that certification in an autonomous
-  agent session. Your commits use the GitHub App bot identity, which
-  the DCO app auto-exempts. The human who merges the PR accepts
-  responsibility for the contribution
+(first line) under that limit.
 
 The commit body should:
 - Explain **what** changed and **why** (not just "fix bug")
@@ -723,52 +703,26 @@ The commit body should:
 - Summarize which files/functions were modified and the approach
 - Note any trade-offs, assumptions, or edge cases
 
+Write the message using a heredoc and `jq`:
+
 ```bash
-git commit -m "<type>(#<number>): <short-description>
+commit_msg=$(cat <<'COMMITMSG'
+<type>(#<number>): <short-description>
 
 <What changed and why. Hard-wrap at the limit from
 .gitlint if one is configured. Write substantive
 content for human reviewers.>
 
-Closes #<number>"
+Closes #<number>
+COMMITMSG
+)
+jq --arg cm "$commit_msg" '. + {commit_message: $cm}' \
+  "${FULLSEND_OUTPUT_DIR}/code-result.json" > "${FULLSEND_OUTPUT_DIR}/code-result.json.tmp" \
+  && mv "${FULLSEND_OUTPUT_DIR}/code-result.json.tmp" "${FULLSEND_OUTPUT_DIR}/code-result.json"
 ```
 
-Keep commit body concise (respects gitlint line-length limits). PR body
-in code-result.json holds the template-structured description if needed.
-
-**After committing, validate the commit message if gitlint is available:**
-
-```bash
-which gitlint &>/dev/null && gitlint --commit HEAD
-```
-
-If gitlint fails, **undo and recommit** with a corrected message (do not
-use `--amend` — always create new commits to preserve attribution):
-
-```bash
-git reset --soft HEAD~1
-git commit -m "<fixed title>
-
-<fixed body — respect ALL line-length rules>"
-gitlint --commit HEAD
-```
-
-Common gitlint failures:
-- **T1 title-max-length** — shorten the title.
-- **B1 body-max-line-length** on prose — re-wrap the offending line.
-
-Repeat until gitlint passes. Do not leave a commit that you know will
-fail CI. If gitlint is not available, manually verify that no line in
-the title or body exceeds the configured limits.
-
-If a git hook fires during `git commit` and fails (e.g., the repo shipped
-a `.git/hooks/pre-commit`), do NOT enter a fix-and-retry loop. You already
-ran pre-commit in step 9b (which is the same check). Commit with
-`--no-verify` to bypass the git hook and disclose the failure in the commit
-message. The post-script runs an authoritative pre-commit on the runner.
-
-**Do not push the branch.** The post-script handles pushing, PR creation,
-and failure reporting.
+**Do not commit or push.** The post-script handles committing via the
+API, PR creation, and failure reporting.
 
 **10d. Write pr_body to structured output**
 
@@ -810,19 +764,20 @@ echo "::notice::STEP 11: Validate structured output"
 cat "${FULLSEND_OUTPUT_DIR}/code-result.json"
 ```
 
-The file must be valid JSON with `target_branch` (required) and
-optionally `pr_body`:
+The file must be valid JSON with `target_branch` and `commit_message`
+(both required), and optionally `pr_body`:
 
 ```json
 {
   "target_branch": "main",
+  "commit_message": "fix(#42): handle null input in parser\n\nThe parser crashed on null input because...\n\nCloses #42",
   "pr_body": "## Summary\n\nWhat changed and why.\n\n## Testing\n\nHow it was tested."
 }
 ```
 
 **Schema compliance:** The schema uses `additionalProperties: false`.
-Only `target_branch` and `pr_body` are allowed. Any other fields will
-cause validation to fail.
+Only `target_branch`, `commit_message`, and `pr_body` are allowed.
+Any other fields will cause validation to fail.
 
 Validate the output against the schema:
 
@@ -837,11 +792,13 @@ JSON you have and exit.
 ## Partial work
 
 If you hit a token limit or context window boundary before completing the
-implementation, and the tests pass on the partial work: commit what you have.
-The review agent downstream will evaluate completeness — incomplete-but-passing
-code is caught at the review stage, not the implementation stage. The commit
-message should note that the work is partial (e.g., "partial implementation"
-in the description) so the review agent and post-script can act accordingly.
+implementation, and the tests pass on the partial work: stage what you have
+and write the commit message to structured output. The review agent
+downstream will evaluate completeness — incomplete-but-passing code is
+caught at the review stage, not the implementation stage. The commit
+message should note that the work is partial (e.g., "partial
+implementation" in the description) so the review agent and post-script
+can act accordingly.
 
 **Structured output is still required for partial work.** The output file
 written in step 3 must exist and be valid. Run `fullsend-check-output`
