@@ -6,6 +6,11 @@ image: ghcr.io/lahavyuv86/fullsend-code:540b27f
 role: coder
 slug: fullsend-ai-coder
 
+skills:
+  - code-implementation
+
+post_script: post-code.sh
+
 env:
   sandbox:
     # Gitsign OIDC configuration
