@@ -9,7 +9,9 @@ slug: fullsend-ai-coder
 skills:
   - code-implementation
 
-post_script: post-code.sh
+forge:
+  github:
+    post_script: post-code.sh
 
 env:
   sandbox:
