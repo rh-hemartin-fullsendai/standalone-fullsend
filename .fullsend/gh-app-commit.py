@@ -57,7 +57,7 @@ def get_staged_files():
     return files
 
 
-def repo_api(token, owner, repo, method, path, data=None):
+def repo_api(token, owner, repo, method, path, data=None, allowed_errors=()):
     url = f"https://api.github.com/repos/{owner}/{repo}{path}"
     payload = json.dumps(data).encode() if data else None
     req = urllib.request.Request(
@@ -75,6 +75,8 @@ def repo_api(token, owner, repo, method, path, data=None):
         with urllib.request.urlopen(req) as resp:
             return json.loads(resp.read())
     except urllib.error.HTTPError as e:
+        if e.code in allowed_errors:
+            return None
         body = e.read().decode()
         print(f"GitHub API error {e.code}: {body}", file=sys.stderr)
         sys.exit(1)
@@ -105,8 +107,18 @@ def main():
     for status, path in staged:
         print(f"  {status}\t{path}")
 
-    # Get the branch HEAD
-    ref_data = repo_api(token, owner, repo, "GET", f"/git/ref/heads/{branch}")
+    # Get the branch HEAD, creating the remote ref if it only exists locally.
+    # The agent creates the branch locally but never pushes it; the API needs
+    # the ref to exist on GitHub before we can build a tree on top of it.
+    ref_data = repo_api(token, owner, repo, "GET", f"/git/ref/heads/{branch}",
+                        allowed_errors=(404,))
+    if ref_data is None:
+        local_sha = run(["git", "rev-parse", "HEAD"])
+        print(f"Remote branch {branch} not found — creating from {local_sha[:12]}")
+        ref_data = repo_api(token, owner, repo, "POST", "/git/refs", {
+            "ref": f"refs/heads/{branch}",
+            "sha": local_sha,
+        })
     base_sha = ref_data["object"]["sha"]
     commit_data = repo_api(token, owner, repo, "GET", f"/git/commits/{base_sha}")
     base_tree_sha = commit_data["tree"]["sha"]
