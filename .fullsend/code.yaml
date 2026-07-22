@@ -1,6 +1,6 @@
 ---
 # harness/signing-code.yaml — code agent with commit signing.
-base: https://raw.githubusercontent.com/fullsend-ai/agents/ef7e8c3c64b1a8af87aec2d253d26ea81a6310de/harness/code.yaml#sha256=050382941bb4c4a3dad5f00253de854684c0d22dd8cc1ca0a548079774470aad
+base: https://raw.githubusercontent.com/fullsend-ai/agents/2db65bb9b4296aa7042c5f84a55bf4f8f63794fd/harness/code.yaml#sha256=6ac2a3dc3e163e53137d6839b7f31f17a3942d9ca316741d21a041df6784fb1d
 image: ghcr.io/lahavyuv86/fullsend-code:540b27f
 
 role: coder
