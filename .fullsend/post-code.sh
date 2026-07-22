@@ -827,7 +827,7 @@ fi
 
 SCAN_RANGE="--staged"
 
-if ! GITLEAKS_OUTPUT="$(gitleaks detect --source . ${SCAN_RANGE} --redact 2>&1)"; then
+if ! GITLEAKS_OUTPUT="$(gitleaks git --source . ${SCAN_RANGE} --redact 2>&1)"; then
   print_sanitized_gha_log "${GITLEAKS_OUTPUT}" stderr
   post_fail_to_issue secret-scan "${POST_FAILURE_SECRET_SCAN_MESSAGE}"
 fi
@@ -946,7 +946,7 @@ if [ -f .pre-commit-config.yaml ]; then
 
         echo "Re-running secret scan on staged files..."
         GITLEAKS_OUTPUT=""
-        if ! GITLEAKS_OUTPUT="$(gitleaks detect --source . --staged --redact 2>&1)"; then
+        if ! GITLEAKS_OUTPUT="$(gitleaks git --source . --staged --redact 2>&1)"; then
           print_sanitized_gha_log "${GITLEAKS_OUTPUT}" stderr
           post_fail_to_issue secret-scan "${POST_FAILURE_SECRET_SCAN_MESSAGE}"
         fi
