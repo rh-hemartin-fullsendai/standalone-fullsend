@@ -9,6 +9,9 @@ slug: fullsend-ai-coder
 skills:
   - code-implementation
 
+validation_loop:
+  schema: code-result.schema.json
+
 forge:
   github:
     post_script: post-code.sh
