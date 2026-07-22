@@ -1,0 +1,13 @@
+[project]
+name = "standalone-fullsend"
+version = "0.1.0"
+description = "A basic Flask web application"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+]
