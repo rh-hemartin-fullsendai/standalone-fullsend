@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "code-result.schema.json",
+  "title": "Code Agent Result",
+  "description": "Structured output from the code agent documenting the target branch, commit message, and PR body for PR creation.",
+  "type": "object",
+  "required": ["target_branch", "commit_message"],
+  "additionalProperties": false,
+  "properties": {
+    "target_branch": {
+      "type": "string",
+      "description": "Branch the PR should target. Determined by the agent from issue context.",
+      "pattern": "^[a-zA-Z0-9._/-]+$"
+    },
+    "commit_message": {
+      "type": "string",
+      "description": "Full commit message including subject line, blank line, and body. The post-script uses the first line as the PR title and the body as fallback PR description."
+    },
+    "pr_body": {
+      "type": "string",
+      "maxLength": 60000,
+      "description": "PR description used as PR body instead of commit body. Supports markdown formatting and template-compliant structure without gitlint line-length constraints."
+    }
+  }
+}
