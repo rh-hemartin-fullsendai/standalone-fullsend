@@ -19,7 +19,7 @@ agents:
   - name: retro
     source: https://raw.githubusercontent.com/fullsend-ai/agents/bf4dfb12b05342b43fa77d84943c6434efb1eaca/harness/retro.yaml#sha256=8be74d42aa94ed0083fd1a915f9903435d797b801b3866acd7e8249830388835
   - name: qualityflow
-    source: https://raw.githubusercontent.com/redhat-community-ai-tools/qualityflow-fullsend/b26c947e95e6325284c5542d466a2a016f6aa312/harness/qualityflow.yaml#sha256=473d44a73c465b318fa3cd8dfee2c55b4a5dc7439f994607eb774825c43c17c2
+    source: https://raw.githubusercontent.com/redhat-community-ai-tools/qualityflow-fullsend/a92589a/harness/qualityflow.yaml#sha256=9a75483e6791006b30dcdbe09bde0927a62f95e50469c8bffd7369f160dc271c
 create_issues:
     allow_targets:
         repos:
