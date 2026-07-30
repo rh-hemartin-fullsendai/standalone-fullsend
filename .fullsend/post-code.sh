@@ -1222,6 +1222,14 @@ echo "pr_url=${PR_URL}" >> "${GITHUB_OUTPUT:-/dev/null}"
 # is used instead (label application requires repo write access). See
 # .github/scripts/check-e2e-authorization-test.sh for trusted-actor rules.
 PR_NUMBER_FROM_URL="${PR_URL##*/}"
+# Ensure the ready-for-review label exists before applying it. The label may
+# not have been provisioned during repo enrollment (see fullsend#5187). Using
+# --force makes this idempotent: creates if missing, no-ops if present.
+gh label create "ready-for-review" \
+  --repo "${REPO_FULL_NAME}" \
+  --color "0E8A16" \
+  --description "PR ready for automated review" \
+  --force 2>/dev/null || true
 gh issue edit "${PR_NUMBER_FROM_URL}" \
   --repo "${REPO_FULL_NAME}" \
   --add-label "ready-for-review" 2>/dev/null || \
