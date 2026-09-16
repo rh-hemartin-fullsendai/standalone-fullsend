@@ -2,7 +2,7 @@
 # https://github.com/fullsend-ai/fullsend
 #
 # This file configures fullsend for per-repo installation mode.
-# See ADR 0033 for details.
+# See https://fullsend.sh/docs/guides/infrastructure/layered-config-reference
 version: "1"
 roles:
     - triage
@@ -11,22 +11,20 @@ roles:
     - fix
     - retro
     - prioritize
-    - qualityflow
-
 agents:
-  - name: code
-    source: code.yaml
-  - name: retro
-    source: https://raw.githubusercontent.com/fullsend-ai/agents/bf4dfb12b05342b43fa77d84943c6434efb1eaca/harness/retro.yaml#sha256=8be74d42aa94ed0083fd1a915f9903435d797b801b3866acd7e8249830388835
-  - name: qualityflow
-    source: https://raw.githubusercontent.com/redhat-community-ai-tools/qualityflow-fullsend/v0.1.1/harness/qualityflow.yaml#sha256=4bcb0ad042f3b6bce284930003a7380cd3987fc0f59da687ea54e912b8d1fbfe
+    - name: code
+      source: code.yaml
+    - name: retro
+      source: https://raw.githubusercontent.com/fullsend-ai/agents/bf4dfb12b05342b43fa77d84943c6434efb1eaca/harness/retro.yaml#sha256=8be74d42aa94ed0083fd1a915f9903435d797b801b3866acd7e8249830388835
+    - source: ci-watch.yaml
+allowed_remote_resources:
+    - https://raw.githubusercontent.com/rh-hemartin-fullsendai/standalone-fullsend/
+    - https://raw.githubusercontent.com/fullsend-ai/agents/
+    - https://raw.githubusercontent.com/redhat-community-ai-tools/qualityflow-fullsend/
+    - https://raw.githubusercontent.com/fullsend-ai/fullsend/
+    - https://raw.githubusercontent.com/alice17/fullsend-ci-diagnose/
 create_issues:
     allow_targets:
         repos:
             - rh-hemartin-fullsendai/standalone-fullsend
             - fullsend-ai/fullsend
-
-allowed_remote_resources:
-  - https://raw.githubusercontent.com/rh-hemartin-fullsendai/standalone-fullsend/
-  - https://raw.githubusercontent.com/fullsend-ai/agents/
-  - https://raw.githubusercontent.com/redhat-community-ai-tools/qualityflow-fullsend/

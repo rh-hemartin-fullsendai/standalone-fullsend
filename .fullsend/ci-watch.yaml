@@ -1,0 +1,4 @@
+base: https://raw.githubusercontent.com/alice17/fullsend-ci-diagnose/5def2c394b2bcc2923f8a8cda990a058f2c4d926/harness/ci-diagnose.yaml#sha256=5018f03d1ab952a5c1b2a6f8b337f749e3f485f7ddd8cc943a888998f9a3c073
+
+role: ci-watch
+slug: fullsend-ai-ci-watch
