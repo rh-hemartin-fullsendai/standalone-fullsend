@@ -16,7 +16,7 @@ agents:
       model: claude-sonnet-5-5
     - name: retro
       source: https://raw.githubusercontent.com/fullsend-ai/agents/bf4dfb12b05342b43fa77d84943c6434efb1eaca/harness/retro.yaml#sha256=8be74d42aa94ed0083fd1a915f9903435d797b801b3866acd7e8249830388835
-    - source: https://raw.githubusercontent.com/rh-hemartin/rfe-creator/76ec1baf64a2835e77be2eebffbd8c1b50446fda/.fullsend/rfe-creator/rfe-creator.yaml#sha256=c1fbb1f4dbed35484e7701251b0cf8dc92ed93b38dd5b8f77186272ff132cbe7
+    - source: rfe-creator.yaml
       ref: testing-fullsend
       model: claude-sonnet-5-5
 allowed_remote_resources:

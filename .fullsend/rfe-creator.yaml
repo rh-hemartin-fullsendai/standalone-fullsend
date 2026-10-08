@@ -1,0 +1,8 @@
+base: https://raw.githubusercontent.com/rh-hemartin/rfe-creator/76ec1baf64a2835e77be2eebffbd8c1b50446fda/.fullsend/rfe-creator/rfe-creator.yaml#sha256=c1fbb1f4dbed35484e7701251b0cf8dc92ed93b38dd5b8f77186272ff132cbe7
+
+env:
+  runner:
+    JIRA_SERVER: https://redhat.atlassian.net
+  sandbox:
+    JIRA_SERVER: https://redhat.atlassian.net
+    FULLSEND_TASK: "/rfe.auto-fix ${FULLSEND_WORK_ITEM_URL}"
