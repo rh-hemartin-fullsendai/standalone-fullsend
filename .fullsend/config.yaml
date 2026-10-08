@@ -14,7 +14,7 @@ roles:
 agents:
     - name: retro
       source: https://raw.githubusercontent.com/fullsend-ai/agents/bf4dfb12b05342b43fa77d84943c6434efb1eaca/harness/retro.yaml#sha256=8be74d42aa94ed0083fd1a915f9903435d797b801b3866acd7e8249830388835
-    - source: https://raw.githubusercontent.com/rh-hemartin/rfe-creator/15b924c37d305397b4a01189293428a9a4dcd2f1/.fullsend/rfe-creator/rfe-creator.yaml#sha256=70b591fc8777dce4dcff5d04305aaaa302aa0041664131d07c9aa4043c5e48c0
+    - source: https://raw.githubusercontent.com/rh-hemartin/rfe-creator/e8d738058b09663d1bfc4ccb556e7f0a04fc67ce/.fullsend/rfe-creator/rfe-creator.yaml#sha256=1ebf9dffb12315774e528ec1def08f404c48c66c51d7c062edf4c40a11b256fb
       ref: testing-fullsend
 allowed_remote_resources:
     - https://raw.githubusercontent.com/rh-hemartin-fullsendai/standalone-fullsend/
