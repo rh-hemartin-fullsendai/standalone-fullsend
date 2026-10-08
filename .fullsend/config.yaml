@@ -4,8 +4,6 @@
 # This file configures fullsend for per-repo installation mode.
 # See https://fullsend.sh/docs/guides/infrastructure/layered-config-reference
 version: "1"
-mint_url: https://mint.fullsend.sh
-
 roles:
     - triage
     - coder
@@ -28,3 +26,7 @@ create_issues:
         repos:
             - rh-hemartin-fullsendai/standalone-fullsend
             - fullsend-ai/fullsend
+mint_url: https://mint.fullsend.sh
+inference:
+    project: team-adlc-on-fullsend
+    wif_provider: projects/365777540927/locations/global/workloadIdentityPools/fullsend-inference/providers/gh-rh-hemartin-fullsendai-standa
