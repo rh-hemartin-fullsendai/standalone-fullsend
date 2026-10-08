@@ -1,4 +1,4 @@
-base: https://raw.githubusercontent.com/rh-hemartin/rfe-creator/06e5e78bdd6fc23182f05b376371e20e1e368071/.fullsend/rfe-creator/rfe-creator.yaml#sha256=b61864dfe882255682b5e6c89d8cd1202843d139d3f0535678d7cfc557b68d21
+base: https://raw.githubusercontent.com/rh-hemartin/rfe-creator/c161b74fbafc27a3892ec6d4fd67a9e788024eb4/.fullsend/rfe-creator/rfe-creator.yaml#sha256=87159d6cae69c95cec9b17f40e82c200e82863ccac4f7e143dcf786faaf6a8d9
 
 env:
   runner:
